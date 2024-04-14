@@ -21,7 +21,13 @@ document.getElementById('submitBtn').addEventListener('click', function() {
 
 function include(itemId) {
     if (!resultArray.hasOwnProperty(itemId)) {
-        resultArray[itemId] = 0;
+        resultArray[itemId] = -1;
+        let like = "like_" + itemId
+        let dislike = "dislike_" + itemId
+        let div = "div_" + itemId
+        document.getElementById(like).style.display = "none";
+        document.getElementById(dislike).style.display = "block";
+        document.getElementById(div).style.marginLeft = "40%";
         changeText();
     }
     desblock()
@@ -30,6 +36,12 @@ function include(itemId) {
 function exclude(itemId) {
     if (resultArray.hasOwnProperty(itemId)) {
         delete resultArray[itemId];
+        let like = "like_" + itemId
+        let dislike = "dislike_" + itemId
+        let div = "div_" + itemId
+        document.getElementById(like).style.display = "block";
+        document.getElementById(dislike).style.display = "none";
+        document.getElementById(div).style.marginLeft = "40%";
         changeText();
     }
     desblock()

@@ -14,9 +14,9 @@
             <div style="text-align: center;">
                 <img data-toggle="tooltip" src="{% static 'img/' %}{{ image.name }}.jpg" alt="{{ image.name }}" data-name="{{ image.name }}" class="image">
     
-                <div>
-                    <button class="px-3 py-2 rounded-full ml-2 bg-red-500 hover:bg-red-700" onclick=include({{ image.id }})><i class="bx bx-check"></i></button>
-                    <button class="px-3 py-2 rounded-full ml-2 bg-blue-500 hover:bg-blue-700" onclick=exclude({{ image.id }})><i class="bx bx-x"></i></button>
+                <div id="div_{{ image.id }}">
+                    <button id="like_{{ image.id }}" style="align-items: center;" class="px-3 py-2 rounded-full ml-2 bg-red-500 hover:bg-red-700" onclick=include({{ image.id }})><i class="bx bx-check"></i></button>
+                    <button id="dislike_{{ image.id }}" style="display: none; align-items: center;" class="px-3 py-2 rounded-full ml-2 bg-blue-500 hover:bg-blue-700" onclick=exclude({{ image.id }})><i class="bx bx-x"></i></button>
                 </div>
             </div>
         {% endfor %}
