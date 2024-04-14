@@ -1,0 +1,47 @@
+{% extends './layouts/base.html' %}
+{% load static %}
+
+{% block header%}
+    <h2 style="font-size: 2vw; display: none;" id="headerText"></h2>
+{% endblock header%}
+
+{% block content %}
+<section>
+    <h1 style="font-size: 3vw; font-weight: 500; margin-bottom: 5%;"> OK, encantado de conocerte {{ name }} </h1>
+    <h2 style="font-size: 2vw; margin-bottom: 3%;" id="myText"></h2>
+    <div class="pictures position-relative">
+        {% for image in images %}
+            <div style="text-align: center;">
+                <img data-toggle="tooltip" src="{% static 'img/' %}{{ image.name }}.jpg" alt="{{ image.name }}" data-name="{{ image.name }}" class="image">
+    
+                <div>
+                    <button class="px-3 py-2 rounded-full ml-2 bg-red-500 hover:bg-red-700" onclick=include({{ image.id }})><i class="bx bx-check"></i></button>
+                    <button class="px-3 py-2 rounded-full ml-2 bg-blue-500 hover:bg-blue-700" onclick=exclude({{ image.id }})><i class="bx bx-x"></i></button>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <form action="{% url 'positions' %}" method="post">
+        {% csrf_token %}
+        <input type="hidden" id="resultArray" value="" name="data">
+        <button style="margin-left: 46.5%;" id="submitBtn" type="submit" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-700">Enviar</button>
+    </form>
+
+    <p style="font-size: 2vw; margin-top: 5%; text-align: center;">Imagenes tomadas de <a href="https://mejorconsalud.as.com/cuantas-posturas-del-kamasutra-existen/">link</a>, donde encontraras más información sobre cada una de ellas</p> 
+
+</section>
+{% endblock content %}
+
+{% block scripts %}
+    <script src="{% static "js/select.js" %}"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+    <script>
+        var j = jQuery.noConflict();
+        j(function() {
+            j('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+{% endblock scripts %}

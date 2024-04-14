@@ -1,0 +1,38 @@
+{% extends './layouts/base.html' %}
+{% load static %}
+
+{% block content %}
+<section>
+    <h1 style="font-size: 3vw; font-weight: 500; margin-bottom: 5%;">Aquí tienes unos cuantos formularios para que juegues con el sitio como vas a jugar con... <i class='bx bx-wink-smile'></i></h1>
+    <section>
+        <form action="{% url 'receive_matrix' %}" method="post" >
+            {% csrf_token %}
+
+            <div class="base-form" style="margin-bottom: 10%;">
+                <h1 style="font-size: 3vw; font-weight: 500;">Modo de problema</h1>
+                <div class="relative inline-flex w-64">
+                    <select name="mode" class="bg-white border border-gray-300 hover:border-gray-400 px-4 py-2 rounded shadow focus:outline-none focus:shadow-outline">
+                        <option value="1">Maximizar tiempo</option>
+                        <option value="2">Maximizar placer</option>
+                        <option value="3">Minimizar cansancio</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="base-form">
+                <h1 style="font-size: 3vw; font-weight: 500; margin-bottom: 5%;">Energía y Placer</h1>
+                <button type="button" id="energy_pleasureButton" class="bg-orange-500 rounded-md hover:bg-orange-700 h-14 px-4 py-3" style="margin-left: 15%;"></button>
+            </div>
+            <div id='form_energy_pleasure' data-name="{{ persons }}" data-position="{{ positions }}" style="display: block;">
+            </div>
+        
+            <input type="hidden" id="e_p_act" value="" name="e_p_act">
+            <button id="submitBtn" style="margin-left: 46.5%; margin-top: 5%;" type="submit" class="bg-orange-500 px-4 py-2 rounded-md hover:bg-orange-700">Enviar</button>
+        </form>
+    </section>
+</section>
+{% endblock content %}
+
+{% block scripts %}
+    <script src="{% static "js/form.js" %}"></script>
+{% endblock scripts %}
