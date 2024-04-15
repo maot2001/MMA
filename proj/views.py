@@ -16,6 +16,9 @@ energy = {}
 pleasure = {}
 data_url = os.path.join(os.getcwd(), 'data', 'data.json')
 e_p_act = True
+order_act = True
+verified = False
+order_send = []
 mode = 1
 
 def initialize_init():
@@ -31,10 +34,13 @@ def initialize_positions():
     pos_names = []
 
 def initialize_rec_mat():
-    global energy, pleasure, e_p_act, mode
+    global energy, pleasure, e_p_act, mode, order_act, verified, order_send
     energy = {}
     pleasure = {}
     e_p_act = True
+    order_act = True
+    verified = False
+    order_send = []
     mode = 1
 
 def load_img():
@@ -73,7 +79,7 @@ def load_positions_data():
     pos_names = data['pos_names']
 
 def load_matrix_data():
-    global energy, pleasure, e_p_act, mode
+    global energy, pleasure, e_p_act, mode, order_act, verified, order_send
 
     with open (data_url, 'r', encoding='utf-8') as f:
         data = json.load(f)
@@ -81,6 +87,9 @@ def load_matrix_data():
     pleasure = data['pleasure']
     e_p_act = data['e_p_act']
     mode = data['mode']
+    order_act = data['order_act'] 
+    verified = data['verified']
+    order_send = data['order_send']
 
 def rand_vals():
     global energy, pleasure
@@ -183,7 +192,7 @@ def positions(request):
 
 def receive_matrix(request):
     if request.POST:
-        global energy, pleasure, e_p_act, mode
+        global energy, pleasure, e_p_act, mode, order_act, verified, order_send
         initialize_rec_mat()
         if len(img) == 0 or not os.path.exists(data_url):
             load_img()
@@ -195,6 +204,9 @@ def receive_matrix(request):
             load_positions_data()
 
         e_p_act = json.loads(request.POST.get('e_p_act'))
+        order_act = json.loads(request.POST.get('order_act'))
+        verified = json.loads(request.POST.get('verified'))
+        order_send = json.loads(request.POST.get('order_send'))
 
         if e_p_act:
             for n in names:
@@ -225,6 +237,13 @@ def receive_matrix(request):
         else:
             rand_vals()
 
+        order = pos_names
+        if order_act and verified:
+            order = []
+            for i in order_send:
+                order.append(pos_names[i])
+
+
         mode = int(request.POST.get('mode'))
         if os.path.exists(data_url):
             with open (data_url, 'r', encoding='utf-8') as f:
@@ -232,6 +251,9 @@ def receive_matrix(request):
             data['energy'] = energy
             data['pleasure'] = pleasure
             data['e_p_act'] = e_p_act
+            data['order_act'] = order_act
+            data['verified'] = verified
+            data['order_send'] = order_send
             data['mode'] = mode
             with open(data_url, 'w', encoding='utf-8') as f:
                 json.dump(data, f, ensure_ascii=False)
@@ -254,7 +276,12 @@ def receive_matrix(request):
             load_matrix_data()
         except:
             return render(request, 'error.html', { 'page': 'http://127.0.0.1:8000/positions/' })
+        
+        order = pos_names
+        if order_act and verified:
+            order = []
+            for i in order_send:
+                order.append(pos_names[i])
 
-    result = resolve(pos_names, names, energy, pleasure, mode)
-    images = [img[int(f)][:len(img[int(f)])-4] for f in pos]
-    return render(request, 'result.html', { 'result': result, 'images': images })
+    result = resolve(order, names, energy, pleasure, mode)
+    return render(request, 'result.html', { 'result': result, 'images': order })
