@@ -12,12 +12,9 @@ names = []
 img = []
 pos = {}
 pos_names = []
-energy = {}
-pleasure = {}
 data_url = os.path.join(os.getcwd(), 'data', 'data.json')
-e_p_act = True
-order_act = True
-verified = False
+matrix_e = []
+matrix_p = []
 order_send = []
 mode = 1
 
@@ -34,12 +31,9 @@ def initialize_positions():
     pos_names = []
 
 def initialize_rec_mat():
-    global energy, pleasure, e_p_act, mode, order_act, verified, order_send
-    energy = {}
-    pleasure = {}
-    e_p_act = True
-    order_act = True
-    verified = False
+    global matrix_e, mode, matrix_p, order_send
+    matrix_e = []
+    matrix_p = []
     order_send = []
     mode = 1
 
@@ -79,27 +73,14 @@ def load_positions_data():
     pos_names = data['pos_names']
 
 def load_matrix_data():
-    global energy, pleasure, e_p_act, mode, order_act, verified, order_send
+    global matrix_e, mode, matrix_p, order_send
 
     with open (data_url, 'r', encoding='utf-8') as f:
         data = json.load(f)
-    energy = data['energy']
-    pleasure = data['pleasure']
-    e_p_act = data['e_p_act']
+    matrix_e = data['matrix_e']
     mode = data['mode']
-    order_act = data['order_act'] 
-    verified = data['verified']
+    matrix_p = data['matrix_p'] 
     order_send = data['order_send']
-
-def rand_vals():
-    global energy, pleasure
-    possibles = ['mucho', 'normal', 'poco']
-    for n in names:
-        energy[n] = choice(possibles)
-        pleasure[n] = choice(possibles)
-        for p in pos_names:
-            energy[f'{n}_{p}'] = choice(possibles)
-            pleasure[f'{n}_{p}'] = choice(possibles)
 
 
 
@@ -192,7 +173,7 @@ def positions(request):
 
 def receive_matrix(request):
     if request.POST:
-        global energy, pleasure, e_p_act, mode, order_act, verified, order_send
+        global matrix_e, mode, matrix_p, order_send
         initialize_rec_mat()
         if len(img) == 0 or not os.path.exists(data_url):
             load_img()
@@ -203,56 +184,19 @@ def receive_matrix(request):
         if len(pos_names) == 0:
             load_positions_data()
 
-        e_p_act = json.loads(request.POST.get('e_p_act'))
-        order_act = json.loads(request.POST.get('order_act'))
-        verified = json.loads(request.POST.get('verified'))
+        matrix_e = json.loads(request.POST.get('matrix_e'))
+        matrix_p = json.loads(request.POST.get('matrix_p'))
         order_send = json.loads(request.POST.get('order_send'))
-
-        if e_p_act:
-            for n in names:
-                val = request.POST.get(f'{n}_energy')
-                if val:
-                    energy[n] = int(val)
-                else:
-                    energy[n] = request.POST.get(f'{n}_energy_select')
-
-                val = request.POST.get(f'{n}_pleasure')
-                if val:
-                    pleasure[n] = int(val)
-                else:
-                    pleasure[n] = request.POST.get(f'{n}_pleasure_select')
-
-                for p in pos_names:
-                    val = request.POST.get(f'{n}_energy_{p}')
-                    if val:
-                        energy[f'{n}_{p}'] = int(val)
-                    else:
-                        energy[f'{n}_{p}'] = request.POST.get(f'{n}_energy_select_{p}')
-
-                    val = request.POST.get(f'{n}_pleasure_{p}')
-                    if val:
-                        pleasure[f'{n}_{p}'] = int(val)
-                    else:
-                        pleasure[f'{n}_{p}'] = request.POST.get(f'{n}_pleasure_select_{p}')
-        else:
-            rand_vals()
-
-        order = pos_names
-        if order_act and verified:
-            order = []
-            for i in order_send:
+        order = []
+        for i in order_send:
                 order.append(pos_names[i])
-
 
         mode = int(request.POST.get('mode'))
         if os.path.exists(data_url):
             with open (data_url, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-            data['energy'] = energy
-            data['pleasure'] = pleasure
-            data['e_p_act'] = e_p_act
-            data['order_act'] = order_act
-            data['verified'] = verified
+            data['matrix_e'] = matrix_e
+            data['matrix_p'] = matrix_p
             data['order_send'] = order_send
             data['mode'] = mode
             with open(data_url, 'w', encoding='utf-8') as f:
@@ -277,11 +221,12 @@ def receive_matrix(request):
         except:
             return render(request, 'error.html', { 'page': 'http://127.0.0.1:8000/positions/' })
         
-        order = pos_names
-        if order_act and verified:
-            order = []
-            for i in order_send:
+        order = []
+        for i in order_send:
                 order.append(pos_names[i])
 
-    result = resolve(order, names, energy, pleasure, mode)
-    return render(request, 'result.html', { 'result': result, 'images': order })
+    result = resolve(matrix_e, matrix_p, mode)
+    new_result = []
+    for i in order_send:
+        new_result.append(result[i])
+    return render(request, 'result.html', { 'result': new_result, 'images': order })

@@ -9,41 +9,27 @@ def rand(word, max):
     else:
         return randint(1, max * 1 / 3)
 
-def generate_matrix(positions, names, energy, pleasure):
+def generate_matrix(energy, pleasure):
     C = []
     Pa = []
     C_init = []
     Pa_finish = []
-    for n in names:
-        i = len(C)
+    for i in range(len(energy)):
         C.append([])
+        for j in range(len(energy[i])):
+            if j == 0:
+                C_init.append(int(energy[i][j]))
+            else:
+                C[i].append(int(energy[i][j]))
+
+    for i in range(len(pleasure)):
         Pa.append([])
-
-        e = energy[n]
-        if isinstance(e, int):
-            C_init.append(e)
-        else:
-            C_init.append(rand(e, 12 * len(positions)))
-
-        p = pleasure[n]
-        if isinstance(p, int):
-            Pa_finish.append(p)
-        else:
-            Pa_finish.append(rand(p, 12 * len(positions)))  
-
-        for pos in positions:
-            e = energy[f'{n}_{pos}']
-            if isinstance(e, int):
-                C[i].append(e)
+        for j in range(len(pleasure[i])):
+            if j == (len(pleasure[i])-1):
+                Pa_finish.append(int(pleasure[i][j]))
             else:
-                C[i].append(rand(e, 15))
+                Pa[i].append(int(pleasure[i][j]))
 
-            p = pleasure[f'{n}_{pos}']
-            if isinstance(p, int):
-                Pa[i].append(p)
-            else:
-                Pa[i].append(rand(p, 15))  
-    
     return C, Pa, C_init, Pa_finish
 
 def simplex_form(prob, x, indexes, C, Pa, C_init, Pa_finish):
@@ -98,8 +84,8 @@ def switch_modes(C, Pa, C_init, Pa_finish, mode, mini):
     else:
         return create_prob_3(C, Pa, C_init, Pa_finish, mini)
 
-def resolve(positions, names, energy, pleasure, mode):
-    C, Pa, C_init, Pa_finish = generate_matrix(positions, names, energy, pleasure)
+def resolve(energy, pleasure, mode):
+    C, Pa, C_init, Pa_finish = generate_matrix(energy, pleasure)
 
     prob = switch_modes(C, Pa, C_init, Pa_finish, mode, 1)
     prob.solve()

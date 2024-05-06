@@ -1,60 +1,53 @@
 {% extends './layouts/base.html' %}
 {% load static %}
 
+{% block style %}
+    body {
+        display: flex;
+    }
+{% endblock style %}
+
 {% block content %}
-<section>
-    <h1 style="font-size: 3vw; font-weight: 500; margin-bottom: 5%;">Aquí tienes unos cuantos formularios para que juegues con el sitio como vas a jugar con... <i class='bx bx-wink-smile'></i></h1>
-    <section>
-        <form action="{% url 'receive_matrix' %}" method="post" >
-            {% csrf_token %}
-
-            <div class="base-form" style="margin-bottom: 10%;">
-                <h1 style="font-size: 3vw; font-weight: 500;">Modo de problema <i class='bx bx-cog'></i></h1>
-                <div class="relative inline-flex w-64">
-                    <select name="mode" class="bg-white border border-gray-300 hover:border-gray-400 px-4 py-2 rounded shadow focus:outline-none focus:shadow-outline">
-                        <option value="1">Maximizar tiempo</option>
-                        <option value="2">Maximizar placer</option>
-                        <option value="3">Minimizar cansancio</option>
-                    </select>
-                </div>
-            </div>
-
-            <div class="base-form">
-                <h1 style="font-size: 3vw; font-weight: 500; margin-bottom: 5%;">Energía y Placer <i class='bx bx-dumbbell'></i></h1>
-                <button type="button" id="energy_pleasureButton" class="bg-orange-500 rounded-md hover:bg-orange-700 h-14 px-4 py-3" style="margin-left: 15%;"></button>
-            </div>
-            <div id='form_energy_pleasure' data-name="{{ persons }}" data-position="{{ positions }}" style="display: block;">
-            </div>
-
-            <div class="base-form">
-                <h1 style="font-size: 3vw; font-weight: 500; margin-bottom: 5%;">Orden del cuchi cuchi</h1>
-                <button type="button" id="orderButton" class="bg-orange-500 rounded-md hover:bg-orange-700 h-14 px-4 py-3" style="margin-left: 15%;"></button>
-            </div>
-            <div class="p-6 bg-gray-100 rounded-lg shadow-md" id="order_form" style="display: block;">
-
-                <h2 class="text-2xl font-bold mb-4">Asignar orden a las posturas</h2>
-                <div id="order" class="grid grid-cols-2 gap-4">
-                </div>
-
-                <div id="indirect_order" class="grid grid-cols-2 gap-4">
-                </div>
-
-                <button type="button" onclick=verify() class="bg-orange-500 rounded-md hover:bg-orange-700 h-14 px-4 py-3 mt-10" style="margin-left: 46%;">Verificar</button>
-                <div id="errorMessage" class="text-red-500 text-xl font-bold" style="text-align: center; margin-top: 1%;"></div>
-            </div>
-
-
-        
-            <input type="hidden" id="e_p_act" value="" name="e_p_act">
-            <input type="hidden" id="order_act" value="" name="order_act">
-            <input type="hidden" id="verified" value="" name="verified">
-            <input type="hidden" id="order_send" value="" name="order_send">
-            <button id="submitBtn" style="margin-left: 46.5%; margin-top: 5%;" type="submit" class="bg-orange-500 px-4 py-2 rounded-md hover:bg-orange-700">Enviar</button>
-        </form>
-    </section>
-</section>
+<div id='data' data-name="{{ persons }}" data-position="{{ positions }}" style="display: block;"></div>
+<div id="left-section">
+    <div class="option" onclick="loadPersons()">Usuarios</div>
+    <div class="option" onclick="toggleSubOptions('pos')">Posturas</div>
+    <div class="sub-option" id="pos">
+    {% for p in positions %}
+        <div class="option" style="font-size: 1.5vw; margin-top: 4%;" onclick="loadPosition('{{ p }}')"><i class='bx bxs-right-arrow text-orange-500 text-sm'></i> {{ p }}</div>
+    {% endfor %}
+    </div>
+</div>
+<div id="central-section">
+    <div id="central-form">
+    </div>
+    <form id="form" action="{% url 'receive_matrix' %}" method="post">
+        {% csrf_token %}
+        <div style="margin-top: 50px; display: flex;">
+            <select name="mode" class="bg-white border border-gray-300 hover:border-gray-400 px-4 py-2 rounded shadow focus:outline-none focus:shadow-outline">
+                <option value="1">Maximizar tiempo</option>
+                <option value="2">Maximizar placer</option>
+                <option value="3">Minimizar cansancio</option>
+            </select>
+            <button id="verifyButton" style="margin-left: 46.5%;" type="button" class="bg-orange-500 px-4 py-2 rounded-md hover:bg-orange-700" onclick="verify()">Enviar</button>
+        </div>
+        <input type="hidden" id="matrix_e" value="" name="matrix_e">
+        <input type="hidden" id="matrix_p" value="" name="matrix_p">
+        <input type="hidden" id="order_send" value="" name="order_send">
+        <div id="errorMessage" class="text-red-500 text-xl font-bold" style="text-align: center; margin-top: 1%;"></div>
+    </form>
+</div>
 {% endblock content %}
 
 {% block scripts %}
-    <script src="{% static "js/form.js" %}"></script>
+    <script src="{% static "js/forms.js" %}"></script>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.6/dist/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.2.1/dist/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+    <script>
+        var j = jQuery.noConflict();
+        j(function() {
+            j('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
 {% endblock scripts %}
